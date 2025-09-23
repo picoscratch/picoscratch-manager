@@ -4,8 +4,7 @@ import { WebSocket } from "ws";
 
 export const InAddCoursePacket = z.object({
 	type: z.literal("addCourse"),
-	name: z.string(),
-	courseType: z.enum(["coding", "chemistry"])
+	name: z.string()
 });
 
 export type InAddCoursePacket = z.infer<typeof InAddCoursePacket>;
@@ -23,8 +22,7 @@ export async function handleAddCoursePacket(packet: InAddCoursePacket, con: Conn
 	}
 
 	const course = await con.school.$create("course", {
-		name: packet.name,
-		courseType: packet.courseType
+		name: packet.name
 	});
 	ws.send(JSON.stringify({
 		type: "addCourse",

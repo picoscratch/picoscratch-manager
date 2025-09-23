@@ -2,8 +2,7 @@ import z from "zod";
 import { broadcastAdmins } from "../../../connection.js";
 export const InAddCoursePacket = z.object({
     type: z.literal("addCourse"),
-    name: z.string(),
-    courseType: z.enum(["coding", "chemistry"])
+    name: z.string()
 });
 export async function handleAddCoursePacket(packet, con, ws) {
     if (con.school.isDemo) {
@@ -17,8 +16,7 @@ export async function handleAddCoursePacket(packet, con, ws) {
         }
     }
     const course = await con.school.$create("course", {
-        name: packet.name,
-        courseType: packet.courseType
+        name: packet.name
     });
     ws.send(JSON.stringify({
         type: "addCourse",
