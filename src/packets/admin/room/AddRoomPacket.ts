@@ -21,7 +21,7 @@ export async function handleAddRoomPacket(packet: InAddRoomPacket, con: Connecti
 		}
 	}
 
-	const room = await con.school.$create("course", {
+	const room = await con.school.$create("room", {
 		name: packet.name
 	});
 	ws.send(JSON.stringify({
