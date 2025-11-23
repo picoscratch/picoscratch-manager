@@ -116,7 +116,10 @@ app.post("/api/makeSchool", async (req, res) => {
 	const code = randomCode();
 	// const code = "demo" + code.substring(4);
 	await sleep(5000);
-	await School.create({ name: req.body.schoolname, adminPassword: req.body.password, lang: req.body.lang, code, isDemo: true });
+	const school = await School.create({ name: req.body.schoolname, adminPassword: req.body.password, lang: req.body.lang, code, isDemo: true });
+	// create demo data
+	await school.$create("course", { name: "Klasse 8b" });
+	await school.$create("room", { name: "PC-Raum 2.31" });
 	res.send({ code });
 });
 
