@@ -95,7 +95,7 @@ async function handleStudentHiPacket(packet, con, ws) {
     ws.send(JSON.stringify({
         type: "hi",
         success: true,
-        schoolname: con.school.name,
+        schoolname: con.school.name, // TODO: deprecate
         rooms,
         lang: con.school.lang // TODO: deprecate
     }));

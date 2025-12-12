@@ -77,6 +77,30 @@ app.post("/api/support", async (req, res) => {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+// Returns a 7-character code based on the school name
+function generateCode(schoolname) {
+    const words = schoolname.split(" ").filter(word => word.length > 0).slice(0, 7); // max 7 words
+    const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+    let code = "";
+    const totalChars = 7;
+    if (capitalizedWords.length >= 2) {
+        const totalWords = capitalizedWords.length;
+        // Split letters across totalWords words and give leftovers to last word
+        const lettersPerWord = Math.floor(totalChars / totalWords); // letters per word
+        const leftover = totalChars % totalWords; // leftover letters
+        for (let i = 0; i < totalWords; i++) {
+            const take = lettersPerWord + (i === totalWords - 1 ? leftover : 0);
+            code += capitalizedWords[i].substring(0, take);
+        }
+    }
+    else if (capitalizedWords.length === 1) {
+        code = capitalizedWords[0].substring(0, totalChars);
+    }
+    while (code.length < totalChars) {
+        code += String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A–Z
+    }
+    return code.substring(0, totalChars);
+}
 app.post("/api/makeSchool", async (req, res) => {
     if (!req.body.schoolname || !req.body.password || !req.body.lang)
         return res.status(400).send({ error: "Missing data" });
@@ -101,10 +125,18 @@ app.post("/api/makeSchool", async (req, res) => {
         if (!cf_res.success)
             return void res.status(400).send({ error: "Invalid captcha" });
     }
-    const code = randomCode();
+    let code = generateCode(req.body.schoolname.trim());
+    if (await School.findOne({ where: { code } })) {
+        // code already exists
+        code = code.slice(0, -1) + Math.floor(Math.random() * 10).toString();
+        if (await School.findOne({ where: { code } })) {
+            // still exists, generate random code
+            code = randomCode();
+        }
+    }
     // const code = "demo" + code.substring(4);
     await sleep(5000);
-    const school = await School.create({ name: req.body.schoolname, adminPassword: req.body.password, lang: req.body.lang, code, isDemo: true });
+    const school = await School.create({ name: req.body.schoolname.trim(), adminPassword: req.body.password, lang: req.body.lang, code, isDemo: true });
     // create demo data
     await school.$create("course", { name: "Klasse 8b" });
     await school.$create("room", { name: "PC-Raum 2.31" });

@@ -106,8 +106,8 @@ export const RegularTask = z.object({
     ])),
     verification: z.object({
         type: z.enum([
-            "manual",
-            "notneeded",
+            "manual", // Require manual verification by a teacher
+            "notneeded", // No verification needed, task is automatically completed
             "code" // Automatically verify using code
         ]),
         code: z.string().optional(),
